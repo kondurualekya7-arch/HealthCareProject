@@ -1,0 +1,16 @@
+{
+  "overall_no_show_rate": 0.20193255946510807,
+  "sms_sent_no_show_rate": 0.27574544839637,
+  "sms_not_sent_no_show_rate": 0.16703311346525418,
+  "peak_no_show_weekday": "Saturday",
+  "peak_no_show_weekday_rate": 0.23076923076923078,
+  "lead_time_no_show_rate": {
+    "0": 0.046593030491599255,
+    "1-3": 0.22889267461669505,
+    "4-7": 0.25202741290691033,
+    "8-14": 0.3046985446985447,
+    "15+": 0.327435222890915
+  },
+  "high_risk_share": 0.0076813810200222574,
+  "reschedule_recommended_count": 27027
+}

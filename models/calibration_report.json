@@ -1,0 +1,6 @@
+{
+  "brier_raw": 0.2104588747024536,
+  "brier_calibrated": 0.14004085958003998,
+  "calibration_used": true,
+  "chosen_threshold": 0.21000000000000002
+}

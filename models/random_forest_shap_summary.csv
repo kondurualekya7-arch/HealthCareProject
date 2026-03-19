@@ -1,0 +1,122 @@
+feature,mean_abs_shap
+cat__appointment_weekday_Friday,0.542659
+cat__appointment_weekday_Tuesday,0.5351898
+cat__appointment_weekday_Monday,0.5346726
+cat__appointment_weekday_Wednesday,0.52403194
+cat__weather_condition_cloudy,0.49489
+cat__appointment_weekday_Thursday,0.49099547
+cat__weather_condition_storm,0.48808998
+num__chronic_illness_flag,0.46618992
+cat__weather_condition_clear,0.4620521
+cat__neighbourhood_SANTO ANDRÉ,0.46126667
+num__sms_received_flag,0.45666528
+cat__weather_condition_rain,0.43808746
+num__past_no_show_count,0.43005085
+cat__booking_channel_walk-in,0.41844338
+cat__booking_channel_call,0.36624673
+cat__booking_channel_app,0.35732368
+cat__gender_M,0.35229462
+cat__appointment_period_afternoon,0.3515296
+num__past_visits_count,0.32337928
+cat__sentiment_label_neutral,0.31668773
+cat__neighbourhood_BELA VISTA,0.21972145
+cat__gender_F,0.198009
+cat__neighbourhood_MARIA ORTIZ,0.19015491
+num__waiting_days,0.18757987
+cat__neighbourhood_NOVA PALESTINA,0.17658983
+cat__appointment_period_morning,0.1625328
+cat__neighbourhood_JARDIM CAMBURI,0.15966831
+cat__neighbourhood_GURIGICA,0.15517256
+cat__neighbourhood_JARDIM DA PENHA,0.14990436
+cat__neighbourhood_SANTO ANTÔNIO,0.14671879
+cat__neighbourhood_SÃO PEDRO,0.14471227
+cat__neighbourhood_CENTRO,0.108051226
+cat__neighbourhood_ILHA DO PRÍNCIPE,0.10534288
+cat__neighbourhood_MARUÍPE,0.09197663
+cat__neighbourhood_RESISTÊNCIA,0.08192997
+num__age,0.060197037
+cat__neighbourhood_BONFIM,0.04852182
+cat__neighbourhood_SANTOS DUMONT,0.04219767
+cat__neighbourhood_ITARARÉ,0.04028371
+cat__neighbourhood_SANTA MARTHA,0.03195305
+num__historical_no_show_rate,0.02468926
+cat__neighbourhood_ILHA DAS CAIEIRAS,0.019159762
+num__num_reminders,0.013588913
+cat__neighbourhood_JESUS DE NAZARETH,0.012644172
+num__last_visit_gap_days,0.010143247
+num__sentiment_score,0.009071036
+cat__neighbourhood_JABOUR,0.007761206
+cat__neighbourhood_ANDORINHAS,0.005853228
+num__transport_distance_km,0.0046746833
+cat__age_group_senior,0.0033366492
+cat__age_group_young_adult,0.0032597196
+cat__neighbourhood_SANTA CLARA,0.0031605333
+cat__neighbourhood_PARQUE MOSCOSO,0.0027810629
+cat__neighbourhood_PRAIA DO CANTO,0.0027494968
+cat__neighbourhood_ILHA DE SANTA MARIA,0.0018999708
+cat__neighbourhood_VILA RUBIM,0.001515339
+num__travel_time_minutes,0.0015053385
+cat__neighbourhood_DO QUADRO,0.0014330978
+cat__age_group_child,0.0009079565
+cat__neighbourhood_SOLON BORGES,0.0005372847
+cat__neighbourhood_SÃO CRISTÓVÃO,0.00042963357
+cat__distance_category_medium,0.00015762432
+cat__age_group_adult,4.849109e-05
+cat__neighbourhood_BOA VISTA,1.27029125e-05
+cat__neighbourhood_DA PENHA,0.0
+cat__neighbourhood_DE LOURDES,0.0
+cat__neighbourhood_ANTÔNIO HONÓRIO,0.0
+cat__neighbourhood_BARRO VERMELHO,0.0
+cat__distance_category_near,0.0
+cat__distance_category_far,0.0
+cat__sentiment_label_negative,0.0
+cat__sentiment_label_positive,0.0
+cat__neighbourhood_AEROPORTO,0.0
+num__is_weekend,0.0
+cat__appointment_weekday_Saturday,0.0
+cat__neighbourhood_CRUZAMENTO,0.0
+cat__neighbourhood_CONSOLAÇÃO,0.0
+cat__neighbourhood_CONQUISTA,0.0
+cat__neighbourhood_COMDUSA,0.0
+cat__neighbourhood_CARATOÍRA,0.0
+cat__neighbourhood_BENTO FERREIRA,0.0
+cat__neighbourhood_ARIOVALDO FAVALESSA,0.0
+cat__neighbourhood_ILHA DO FRADE,0.0
+cat__neighbourhood_GRANDE VITÓRIA,0.0
+cat__neighbourhood_ILHA DO BOI,0.0
+cat__neighbourhood_ESTRELINHA,0.0
+cat__neighbourhood_DO CABRAL,0.0
+cat__neighbourhood_DO MOSCOSO,0.0
+cat__neighbourhood_ENSEADA DO SUÁ,0.0
+cat__neighbourhood_MÁRIO CYPRESTE,0.0
+cat__neighbourhood_MORADA DE CAMBURI,0.0
+cat__neighbourhood_MONTE BELO,0.0
+cat__neighbourhood_MATA DA PRAIA,0.0
+cat__neighbourhood_JOANA D´ARC,0.0
+cat__neighbourhood_JUCUTUQUARA,0.0
+cat__neighbourhood_INHANGUETÁ,0.0
+cat__neighbourhood_ILHAS OCEÂNICAS DE TRINDADE,0.0
+cat__neighbourhood_FRADINHOS,0.0
+cat__neighbourhood_FORTE SÃO JOÃO,0.0
+cat__neighbourhood_FONTE GRANDE,0.0
+cat__neighbourhood_GOIABEIRAS,0.0
+cat__neighbourhood_HORTO,0.0
+cat__neighbourhood_PIEDADE,0.0
+cat__neighbourhood_PARQUE INDUSTRIAL,0.0
+cat__neighbourhood_NAZARETH,0.0
+cat__neighbourhood_SANTA LUÍZA,0.0
+cat__neighbourhood_SANTA HELENA,0.0
+cat__neighbourhood_SANTA CECÍLIA,0.0
+cat__neighbourhood_ROMÃO,0.0
+cat__neighbourhood_REDENÇÃO,0.0
+cat__neighbourhood_REPÚBLICA,0.0
+cat__neighbourhood_PONTAL DE CAMBURI,0.0
+cat__neighbourhood_PRAIA DO SUÁ,0.0
+cat__neighbourhood_SEGURANÇA DO LAR,0.0
+cat__neighbourhood_SANTOS REIS,0.0
+cat__neighbourhood_SANTA LÚCIA,0.0
+cat__neighbourhood_SANTA TEREZA,0.0
+cat__neighbourhood_SÃO JOSÉ,0.0
+cat__neighbourhood_SÃO BENEDITO,0.0
+cat__neighbourhood_TABUAZEIRO,0.0
+cat__neighbourhood_UNIVERSITÁRIO,0.0

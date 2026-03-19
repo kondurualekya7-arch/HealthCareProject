@@ -1,0 +1,222 @@
+-- Table assumption in Power BI model:
+--   scored_appointments  -> imported from data/curated/scored_appointments.csv
+--   action_recommendations (optional) -> imported from data/curated/action_recommendations.csv
+--
+-- Relationship recommendation:
+--   scored_appointments[appointmentid] (1) -> (1) action_recommendations[appointmentid]
+
+-- =========================
+-- OVERVIEW KPIs
+-- =========================
+Total Appointments =
+COUNTROWS(scored_appointments)
+
+No-Show Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[no_show] = 1
+)
+
+Show Count =
+[Total Appointments] - [No-Show Count]
+
+No-Show Rate =
+DIVIDE([No-Show Count], [Total Appointments], 0)
+
+Avg No-Show Probability =
+AVERAGE(scored_appointments[no_show_probability])
+
+Avg Waiting Days =
+AVERAGE(scored_appointments[waiting_days])
+
+-- =========================
+-- RISK / PREDICTION
+-- =========================
+High Risk Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[risk_band] = "high"
+)
+
+Medium Risk Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[risk_band] = "medium"
+)
+
+Low Risk Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[risk_band] = "low"
+)
+
+High Risk Share =
+DIVIDE([High Risk Count], [Total Appointments], 0)
+
+Predicted No-Show Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[no_show_prediction] = 1
+)
+
+Predicted No-Show Rate =
+DIVIDE([Predicted No-Show Count], [Total Appointments], 0)
+
+-- Precision proxy at threshold used in scoring (0.5)
+True Positive Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[no_show_prediction] = 1,
+    scored_appointments[no_show] = 1
+)
+
+Precision Proxy =
+DIVIDE([True Positive Count], [Predicted No-Show Count], 0)
+
+-- =========================
+-- SENTIMENT / BEHAVIOR
+-- =========================
+Negative Sentiment Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[sentiment_label] = "negative"
+)
+
+Negative Sentiment Share =
+DIVIDE([Negative Sentiment Count], [Total Appointments], 0)
+
+Avg Sentiment Score =
+AVERAGE(scored_appointments[sentiment_score])
+
+Negative Sentiment No-Show Rate =
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(scored_appointments),
+        scored_appointments[sentiment_label] = "negative",
+        scored_appointments[no_show] = 1
+    ),
+    CALCULATE(
+        COUNTROWS(scored_appointments),
+        scored_appointments[sentiment_label] = "negative"
+    ),
+    0
+)
+
+Transport Dependent Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[behavior_segment] = "transport_dependent"
+)
+
+-- =========================
+-- SMS / OPERATIONS
+-- =========================
+SMS Sent Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[sms_received] = 1
+)
+
+SMS Not Sent Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[sms_received] = 0
+)
+
+SMS Coverage Rate =
+DIVIDE([SMS Sent Count], [Total Appointments], 0)
+
+No-Show Rate (SMS Sent) =
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(scored_appointments),
+        scored_appointments[sms_received] = 1,
+        scored_appointments[no_show] = 1
+    ),
+    [SMS Sent Count],
+    0
+)
+
+No-Show Rate (No SMS) =
+DIVIDE(
+    CALCULATE(
+        COUNTROWS(scored_appointments),
+        scored_appointments[sms_received] = 0,
+        scored_appointments[no_show] = 1
+    ),
+    [SMS Not Sent Count],
+    0
+)
+
+SMS Impact (No-Show Rate Delta) =
+[No-Show Rate (No SMS)] - [No-Show Rate (SMS Sent)]
+
+-- =========================
+-- TRANSPORT OPTIMIZATION
+-- =========================
+Urgent Transport Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[transport_need] = "urgent_support"
+)
+
+Consider Transport Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[transport_need] = "consider_support"
+)
+
+Urgent Transport Share =
+DIVIDE([Urgent Transport Count], [Total Appointments], 0)
+
+Avg Transport Priority Score =
+AVERAGE(scored_appointments[transport_priority_score])
+
+High-Risk Urgent Transport Count =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[risk_band] = "high",
+    scored_appointments[transport_need] = "urgent_support"
+)
+
+Avg Distance (High Risk) =
+CALCULATE(
+    AVERAGE(scored_appointments[transport_distance_km]),
+    scored_appointments[risk_band] = "high"
+)
+
+Avg Travel Time (High Risk) =
+CALCULATE(
+    AVERAGE(scored_appointments[travel_time_minutes]),
+    scored_appointments[risk_band] = "high"
+)
+
+-- =========================
+-- ACTION MONITORING
+-- =========================
+Action Count =
+COUNTROWS(scored_appointments)
+
+Call/Counseling Actions =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[recommended_action] = "Call + counseling + reminder"
+)
+
+Transport Actions =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[recommended_action] = "Arrange transport support"
+)
+
+Reminder Escalation Actions =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[recommended_action] = "Priority reminder escalation"
+)
+
+Standard Reminder Actions =
+CALCULATE(
+    COUNTROWS(scored_appointments),
+    scored_appointments[recommended_action] = "Standard SMS reminder"
+)
