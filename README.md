@@ -1,7 +1,25 @@
 # Healthcare Appointment No-Show Prediction (AI-Agent Ready MVP)
 
+![Python](https://img.shields.io/badge/Python-3.12-blue)
+![ML](https://img.shields.io/badge/ML-Scikit--learn%20%7C%20XGBoost-green)
+![Frontend](https://img.shields.io/badge/Frontend-Streamlit-red)
+![BI](https://img.shields.io/badge/BI-Power%20BI-yellow)
+![Status](https://img.shields.io/badge/Status-End--to--End%20Working-brightgreen)
+
 ## Objective
 Predict appointment no-shows and produce operational recommendations for reminder escalation, transport coordination, and schedule optimization.
+
+## Why This Project Matters
+- Reduces missed appointments through proactive intervention
+- Improves operational efficiency via risk-aware scheduling
+- Connects ML prediction to real workflow actions (transport, reminders, reschedule)
+
+## Portfolio Quick Links
+- Architecture: `docs/architecture.md`
+- Demo script: `docs/demo_script.md`
+- Power BI storyboard: `dashboard/powerbi_storyboard.md`
+- Modeling notes: `reports/modeling_notes.md`
+- Screenshot kit: `docs/screenshots/README.md`
 
 ## MVP Components
 - Data ingestion and cleaning for Kaggle Brazil no-show dataset
@@ -33,6 +51,14 @@ Synthetic extension columns are auto-generated if missing:
 4. Launch management frontend:
    - `streamlit run frontend/app.py`
 
+## Architecture
+See system design and Mermaid diagram in:
+- `docs/architecture.md`
+
+## Demo Flow (Interview Ready)
+Use the guided script in:
+- `docs/demo_script.md`
+
 ## Outputs
 - Best model: `models/no_show_best_model.pkl`
 - Metrics: `models/no_show_metrics.json`
@@ -59,3 +85,12 @@ Use `frontend/app.py` for a lightweight operations view with:
 
 ## AI-Agent Expansion
 See `docs/agent_blueprint.md` for automation flow and extension points.
+
+## Sample Screenshots
+After capturing images into `docs/screenshots/`, add these to showcase the system:
+
+![Executive Summary](docs/screenshots/01-executive-summary.png)
+![Operations Queue](docs/screenshots/02-operations-queue.png)
+![Schedule Management](docs/screenshots/03-schedule-management.png)
+![Analytics Story](docs/screenshots/04-analytics-story.png)
+![Model Explainability](docs/screenshots/05-model-explainability.png)
