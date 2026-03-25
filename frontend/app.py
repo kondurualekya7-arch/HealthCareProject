@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import altair as alt
 import numpy as np
 import pandas as pd
 import streamlit as st
@@ -21,6 +22,57 @@ FEATURE_IMPORTANCE_PATH = ROOT / "models" / "random_forest_feature_importance.cs
 SHAP_SUMMARY_PATH = ROOT / "models" / "random_forest_shap_summary.csv"
 BUSINESS_INSIGHTS_MD = ROOT / "reports" / "business_insights.md"
 BUSINESS_INSIGHTS_JSON = ROOT / "reports" / "business_insights.json"
+
+
+def apply_professional_theme() -> None:
+    st.markdown(
+        """
+        <style>
+        .block-container {padding-top: 1.2rem; padding-bottom: 1rem; max-width: 1400px;}
+        .dashboard-title {font-size: 2.0rem; font-weight: 700; margin-bottom: 0.1rem;}
+        .dashboard-subtitle {color: #6b7280; margin-bottom: 1rem;}
+        .metric-chip {
+            display: inline-block;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-right: 0.35rem;
+            margin-bottom: 0.35rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def style_altair_chart(chart: alt.Chart, title: str | None = None, height: int = 300) -> alt.Chart:
+    if title:
+        chart = chart.properties(title=title)
+    return (
+        chart.properties(height=height)
+        .configure_axis(
+            labelFontSize=12,
+            titleFontSize=13,
+            gridColor="#e5e7eb",
+        )
+        .configure_view(strokeOpacity=0)
+        .configure_legend(labelFontSize=12, titleFontSize=12, orient="top")
+        .configure_title(fontSize=16, anchor="start", color="#111827")
+        .configure_range(
+            category=[
+                "#4f46e5",
+                "#0ea5e9",
+                "#f59e0b",
+                "#10b981",
+                "#ef4444",
+                "#8b5cf6",
+                "#14b8a6",
+            ]
+        )
+    )
 
 
 @st.cache_data(show_spinner=False)
@@ -198,6 +250,17 @@ def show_kpis(df: pd.DataFrame, ui_context: dict) -> None:
     col7.metric("What-if predicted", f"{what_if_predicted_rate:.1%}", delta=f"{(what_if_predicted_rate - predicted_rate):+.1%}")
     st.caption(f"Reschedule recommendations in filtered view: {reschedule_count:,}")
     st.caption(f"Active role: {ui_context.get('role', 'Ops Lead')} | What-if threshold: {what_if_threshold:.2f}")
+    st.markdown(
+        f"""
+        <div>
+            <span class='metric-chip'>Risk Bands: Low 0–30%</span>
+            <span class='metric-chip'>Medium 30–70%</span>
+            <span class='metric-chip'>High &gt;70%</span>
+            <span class='metric-chip'>Role: {ui_context.get('role', 'Ops Lead')}</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def show_management_queue(df: pd.DataFrame, role: str) -> None:
@@ -492,6 +555,176 @@ def show_policy_simulation(df: pd.DataFrame, ui_context: dict) -> None:
     st.dataframe(comparison, use_container_width=True, hide_index=True)
 
 
+def show_professional_visualizations(df: pd.DataFrame) -> None:
+    st.subheader("Professional Visualizations")
+
+    if df.empty:
+        st.info("No data available for visualization.")
+        return
+
+    vis_tab1, vis_tab2, vis_tab3 = st.tabs([
+        "Trend & Risk",
+        "Behavior & Communication",
+        "Operations & Actions",
+    ])
+
+    with vis_tab1:
+        left, right = st.columns(2)
+
+        with left:
+            if "appointment_date" in df.columns:
+                trend_df = (
+                    df.dropna(subset=["appointment_date"])
+                    .groupby("appointment_date", as_index=False)["no_show"]
+                    .mean()
+                    .rename(columns={"no_show": "no_show_rate"})
+                )
+                if not trend_df.empty:
+                    trend_df["appointment_date"] = pd.to_datetime(trend_df["appointment_date"])
+                    trend_df = trend_df.sort_values("appointment_date")
+                    trend_df["rolling_7d"] = trend_df["no_show_rate"].rolling(7, min_periods=1).mean()
+
+                    line_actual = alt.Chart(trend_df).mark_line(point=True).encode(
+                        x=alt.X("appointment_date:T", title="Date"),
+                        y=alt.Y("no_show_rate:Q", title="No-show rate"),
+                        tooltip=["appointment_date:T", alt.Tooltip("no_show_rate:Q", format=".2%")],
+                    ).properties(title="No-show Trend")
+
+                    line_roll = alt.Chart(trend_df).mark_line(strokeDash=[4, 3], color="#ff7f0e").encode(
+                        x="appointment_date:T",
+                        y=alt.Y("rolling_7d:Q", title="No-show rate"),
+                        tooltip=["appointment_date:T", alt.Tooltip("rolling_7d:Q", format=".2%")],
+                    )
+
+                    chart = style_altair_chart((line_actual + line_roll).interactive(), height=300)
+                    st.altair_chart(chart, use_container_width=True)
+
+        with right:
+            if "no_show_probability" in df.columns:
+                prob_df = df[["no_show_probability", "no_show"]].copy()
+                prob_df["actual"] = prob_df["no_show"].map({0: "Show", 1: "No-Show"})
+                hist = alt.Chart(prob_df).mark_bar(opacity=0.65).encode(
+                    x=alt.X("no_show_probability:Q", bin=alt.Bin(maxbins=30), title="Predicted probability"),
+                    y=alt.Y("count():Q", title="Appointments"),
+                    color=alt.Color("actual:N", title="Actual"),
+                    tooltip=[alt.Tooltip("count():Q", title="Count")],
+                ).properties(title="Prediction Probability Distribution")
+                st.altair_chart(style_altair_chart(hist, height=300), use_container_width=True)
+
+        if "appointment_period" in df.columns and "appointment_weekday" in df.columns:
+            heat = (
+                df.groupby(["appointment_weekday", "appointment_period"], as_index=False)["no_show"]
+                .mean()
+                .rename(columns={"no_show": "no_show_rate"})
+            )
+            weekday_order = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+            heatmap = alt.Chart(heat).mark_rect().encode(
+                x=alt.X("appointment_period:N", title="Appointment period"),
+                y=alt.Y("appointment_weekday:N", sort=weekday_order, title="Weekday"),
+                color=alt.Color("no_show_rate:Q", title="No-show rate"),
+                tooltip=["appointment_weekday:N", "appointment_period:N", alt.Tooltip("no_show_rate:Q", format=".2%")],
+            ).properties(title="Weekday × Appointment Period Heatmap")
+            st.altair_chart(style_altair_chart(heatmap, height=260), use_container_width=True)
+
+    with vis_tab2:
+        left, right = st.columns(2)
+
+        with left:
+            if "waiting_days" in df.columns:
+                lead_df = df.copy()
+                lead_df["lead_time_bucket"] = pd.cut(
+                    lead_df["waiting_days"],
+                    bins=[-1, 0, 3, 7, 14, 30, 999],
+                    labels=["0", "1-3", "4-7", "8-14", "15-30", "31+"],
+                )
+                lead_rate = (
+                    lead_df.groupby("lead_time_bucket", as_index=False, observed=False)["no_show"]
+                    .mean()
+                    .rename(columns={"no_show": "no_show_rate"})
+                )
+                lead_chart = alt.Chart(lead_rate).mark_bar().encode(
+                    x=alt.X("lead_time_bucket:N", title="Lead time (days)"),
+                    y=alt.Y("no_show_rate:Q", title="No-show rate"),
+                    tooltip=["lead_time_bucket:N", alt.Tooltip("no_show_rate:Q", format=".2%")],
+                ).properties(title="Lead Time Impact")
+                st.altair_chart(style_altair_chart(lead_chart, height=280), use_container_width=True)
+
+        with right:
+            if "num_reminders" in df.columns:
+                reminder_rate = (
+                    df.groupby("num_reminders", as_index=False)["no_show"]
+                    .mean()
+                    .rename(columns={"no_show": "no_show_rate"})
+                )
+                reminder_chart = alt.Chart(reminder_rate).mark_line(point=True).encode(
+                    x=alt.X("num_reminders:Q", title="Number of reminders"),
+                    y=alt.Y("no_show_rate:Q", title="No-show rate"),
+                    tooltip=["num_reminders:Q", alt.Tooltip("no_show_rate:Q", format=".2%")],
+                ).properties(title="Reminder Effectiveness")
+                st.altair_chart(style_altair_chart(reminder_chart, height=280), use_container_width=True)
+
+        if "age_group" in df.columns and "risk_band" in df.columns:
+            cohort = df.groupby(["age_group", "risk_band"], as_index=False).size().rename(columns={"size": "count"})
+            cohort_chart = alt.Chart(cohort).mark_rect().encode(
+                x=alt.X("risk_band:N", title="Risk band"),
+                y=alt.Y("age_group:N", title="Age group"),
+                color=alt.Color("count:Q", title="Appointments"),
+                tooltip=["age_group:N", "risk_band:N", "count:Q"],
+            ).properties(title="Age Group × Risk Band Cohort Matrix")
+            st.altair_chart(style_altair_chart(cohort_chart, height=260), use_container_width=True)
+
+    with vis_tab3:
+        left, right = st.columns(2)
+
+        with left:
+            if "recommended_action" in df.columns and "risk_band" in df.columns:
+                action_risk = df.groupby(["recommended_action", "risk_band"], as_index=False).size().rename(columns={"size": "count"})
+                stacked = alt.Chart(action_risk).mark_bar().encode(
+                    x=alt.X("recommended_action:N", title="Recommended action", sort="-y"),
+                    y=alt.Y("count:Q", title="Count"),
+                    color=alt.Color("risk_band:N", title="Risk band"),
+                    tooltip=["recommended_action:N", "risk_band:N", "count:Q"],
+                ).properties(title="Action Mix by Risk Band")
+                st.altair_chart(style_altair_chart(stacked, height=320), use_container_width=True)
+
+        with right:
+            if "transport_distance_km" in df.columns and "no_show_probability" in df.columns:
+                scatter_df = df[["transport_distance_km", "no_show_probability", "risk_band"]].dropna().copy()
+                if len(scatter_df) > 5000:
+                    scatter_df = scatter_df.sample(5000, random_state=42)
+                scatter = alt.Chart(scatter_df).mark_circle(size=55, opacity=0.45).encode(
+                    x=alt.X("transport_distance_km:Q", title="Transport distance (km)"),
+                    y=alt.Y("no_show_probability:Q", title="No-show probability"),
+                    color=alt.Color("risk_band:N", title="Risk band"),
+                    tooltip=["transport_distance_km:Q", alt.Tooltip("no_show_probability:Q", format=".2f"), "risk_band:N"],
+                ).properties(title="Distance vs Predicted Risk")
+                st.altair_chart(style_altair_chart(scatter, height=320), use_container_width=True)
+
+        if "schedule_status" in df.columns:
+            funnel_source = pd.DataFrame(
+                {
+                    "stage": [
+                        "Total appointments",
+                        "Predicted no-show",
+                        "High risk",
+                        "Reschedule recommended",
+                    ],
+                    "count": [
+                        int(len(df)),
+                        int((df.get("no_show_prediction", pd.Series(dtype=int)) == 1).sum()),
+                        int((df.get("risk_band", pd.Series(dtype=str)) == "high").sum()),
+                        int((df.get("schedule_status", pd.Series(dtype=str)) == "reschedule_recommended").sum()),
+                    ],
+                }
+            )
+            funnel = alt.Chart(funnel_source).mark_bar().encode(
+                x=alt.X("count:Q", title="Count"),
+                y=alt.Y("stage:N", title="Journey stage", sort="-x"),
+                tooltip=["stage:N", "count:Q"],
+            ).properties(title="Intervention Funnel")
+            st.altair_chart(style_altair_chart(funnel, height=250), use_container_width=True)
+
+
 def show_model_and_explainability() -> None:
     st.subheader("Model Performance, Calibration, and Explainability")
 
@@ -654,8 +887,12 @@ def show_executive_summary(df: pd.DataFrame) -> None:
 
 def main() -> None:
     st.set_page_config(page_title="No-Show Management", layout="wide")
-    st.title("Healthcare No-Show Management Dashboard")
-    st.caption("Operational interface for risk triage, sentiment-aware interventions, transport coordination, and rescheduling.")
+    apply_professional_theme()
+    st.markdown("<div class='dashboard-title'>Healthcare No-Show Management Dashboard</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='dashboard-subtitle'>Operational command center for prediction, intervention, and schedule optimization.</div>",
+        unsafe_allow_html=True,
+    )
 
     if not SCORED_PATH.exists():
         st.error("Missing scored dataset. Run scoring pipeline first: python -m src.pipelines.run_scoring_pipeline")
@@ -680,6 +917,7 @@ def main() -> None:
 
     with tab_analytics:
         show_analytics_story(filtered)
+        show_professional_visualizations(filtered)
         show_policy_simulation(filtered, ui_context)
 
     with tab_model:
